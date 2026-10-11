@@ -1,0 +1,21 @@
+# Build output, test databases and UI test screenshots
+target/
+
+# Application data: the SQLite database holds real employee data and password hashes
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Logs
+*.log
+
+# IDE and OS files
+.vscode/
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+.DS_Store
+Thumbs.db

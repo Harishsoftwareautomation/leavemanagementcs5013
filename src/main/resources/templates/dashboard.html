@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="en">
+<head>
+    <th:block th:replace="~{fragments/layout :: head}"></th:block>
+    <title>Dashboard - Leave Management System</title>
+</head>
+<body>
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+    <!-- HR sees the whole organisation; a Team Lead sees only their team (sections chosen by role) -->
+    <div class="container mt-5">
+        <div class="d-flex flex-wrap justify-content-between align-items-end">
+            <div>
+                <h1 sec:authorize="hasRole('HR_ADMIN')">HR Dashboard</h1>
+                <h1 sec:authorize="hasRole('TEAM_LEAD')">My Team</h1>
+            </div>
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <label for="reportYear" class="form-label mb-0">Year</label>
+                <input type="number" class="form-control" id="reportYear" min="1" style="width: 7rem;">
+            </div>
+        </div>
+        <hr>
+
+        <!-- ===== HR ===== -->
+        <div id="hrDashboard" sec:authorize="hasRole('HR_ADMIN')">
+            <div class="row mb-4">
+                <div class="col-md-3 mb-3">
+                    <div class="card text-white bg-primary h-100">
+                        <div class="card-body">
+                            <h6 class="card-title">Active employees</h6>
+                            <p class="card-text display-5 mb-0" id="activeEmployees">-</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <a class="text-decoration-none" th:href="@{/leave-requests}">
+                        <div class="card bg-warning h-100">
+                            <div class="card-body text-dark">
+                                <h6 class="card-title">Waiting for Team Lead</h6>
+                                <p class="card-text display-5 mb-0" id="pendingTeamLead">-</p>
+                                <small id="pendingTeamLeadDetail"></small>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <a class="text-decoration-none" th:href="@{/leave-requests}">
+                        <div class="card bg-info h-100">
+                            <div class="card-body text-dark">
+                                <h6 class="card-title">Waiting for HR</h6>
+                                <p class="card-text display-5 mb-0" id="pendingHr">-</p>
+                                <small id="pendingHrDetail"></small>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="card h-100" id="negativeCard">
+                        <div class="card-body">
+                            <h6 class="card-title">Employees below zero</h6>
+                            <p class="card-text display-5 mb-0" id="negativeCount">-</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <p class="text-muted" id="dayTotals"></p>
+
+            <!-- Negative balances -->
+            <div class="card mb-4">
+                <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Negative balances</h5>
+                    <a class="btn btn-sm btn-light" id="exportNegative" href="#">Export to Excel</a>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover mb-0">
+                            <thead class="table-dark">
+                                <tr><th>Employee</th><th>Team</th><th>Lead</th><th>Leave type</th><th class="text-end">Remaining</th><th>Below zero since</th></tr>
+                            </thead>
+                            <tbody id="negativeList">
+                                <tr><td colspan="6" class="text-center">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Balance summary -->
+            <div class="card mb-4">
+                <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Balance summary</h5>
+                    <a class="btn btn-sm btn-light" id="exportBalances" href="#">Export to Excel</a>
+                </div>
+                <div class="card-body">
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-4">
+                            <select class="form-select" id="filterDepartment" aria-label="Department">
+                                <option value="">All departments</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <select class="form-select" id="filterLeaveType" aria-label="Leave type">
+                                <option value="">All leave types</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-striped table-hover mb-0">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>ID</th><th>Employee</th><th>Team</th><th>Lead</th><th>Leave type</th>
+                                    <th class="text-end">Allotted</th><th class="text-end">Used</th>
+                                    <th class="text-end">Comp-off credited</th><th class="text-end">Adjustments</th>
+                                    <th class="text-end"><a href="#" class="text-white" id="sortRemaining">Remaining <span id="sortArrow"></span></a></th>
+                                </tr>
+                            </thead>
+                            <tbody id="balanceList">
+                                <tr><td colspan="10" class="text-center">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="text-muted small mt-2 mb-0">Remaining = allotted + comp-off credited + adjustments - used.
+                        The comp-off balance has no year and is listed with every year. Click a name to see that employee's balance history.</p>
+                </div>
+            </div>
+
+            <!-- Other Excel downloads -->
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Excel exports</h5>
+                </div>
+                <div class="card-body">
+                    <form id="exportRequestsForm" class="row g-2 align-items-end mb-3">
+                        <div class="col-md-12"><strong>Leave requests</strong> with both approval steps (requests with any day in the range)</div>
+                        <div class="col-md-3">
+                            <label for="exportFrom" class="form-label small mb-0">From</label>
+                            <input type="date" class="form-control" id="exportFrom" data-allow-past required>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="exportTo" class="form-label small mb-0">To</label>
+                            <input type="date" class="form-control" id="exportTo" data-allow-past required>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="exportStatus" class="form-label small mb-0">Status</label>
+                            <select class="form-select" id="exportStatus">
+                                <option value="">All statuses</option>
+                                <option value="PENDING_TL">Waiting for Team Lead</option>
+                                <option value="PENDING_HR">Waiting for HR</option>
+                                <option value="APPROVED">Approved</option>
+                                <option value="REJECTED">Rejected</option>
+                                <option value="CANCELLED">Cancelled</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <button type="submit" class="btn btn-success w-100">Export leave requests</button>
+                        </div>
+                    </form>
+                    <div>
+                        <strong>Employees</strong> (status, role, reporting lead, salary)
+                        <a class="btn btn-sm btn-outline-success ms-2" th:href="@{/api/reports/employees/export}">Export employees</a>
+                    </div>
+                    <p class="text-muted small mt-3 mb-0">An employee's balance history can be exported from the Leave Balance page.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== Team Lead ===== -->
+        <div id="teamDashboard" sec:authorize="hasRole('TEAM_LEAD')">
+            <div class="row mb-4">
+                <div class="col-md-4 mb-3">
+                    <div class="card text-white bg-primary h-100">
+                        <div class="card-body">
+                            <h6 class="card-title">Team members</h6>
+                            <p class="card-text display-5 mb-0" id="teamSize">-</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <a class="text-decoration-none" th:href="@{/leave-requests}">
+                        <div class="card bg-warning h-100">
+                            <div class="card-body text-dark">
+                                <h6 class="card-title">Waiting for you</h6>
+                                <p class="card-text display-5 mb-0" id="waitingForMe">-</p>
+                                <small>leave and comp-off requests</small>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card bg-info h-100">
+                        <div class="card-body text-dark">
+                            <h6 class="card-title">Waiting for HR</h6>
+                            <p class="card-text display-5 mb-0" id="waitingForHr">-</p>
+                            <small>approved by you, not yet by HR</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">Team balances</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-striped table-hover mb-0">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Employee</th><th>Leave type</th>
+                                    <th class="text-end">Allotted</th><th class="text-end">Used</th>
+                                    <th class="text-end">Comp-off credited</th><th class="text-end">Adjustments</th>
+                                    <th class="text-end">Remaining</th>
+                                </tr>
+                            </thead>
+                            <tbody id="teamBalanceList">
+                                <tr><td colspan="7" class="text-center">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+
+    <th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+    <script th:src="@{/js/dashboard.js}"></script>
+</body>
+</html>

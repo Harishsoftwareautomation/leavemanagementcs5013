@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <th:block th:replace="~{fragments/layout :: head}"></th:block>
+    <title>My Profile - Leave Management System</title>
+</head>
+<body>
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+    <div class="container mt-5">
+        <h1>My Profile</h1>
+        <hr>
+
+        <div class="alert alert-info" id="noEmployeeNote" hidden>
+            This administrator account is not linked to an employee record, so it has no leave balance or history.
+        </div>
+
+        <div class="row mb-4" id="profileSection">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">My Details</h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-sm mb-0">
+                            <tbody id="profileDetails"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">Update Contact Details</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="profileForm">
+                            <div class="mb-3">
+                                <label for="phone" class="form-label">Phone</label>
+                                <input type="tel" class="form-control" id="phone" placeholder="e.g. +91 98765 43210">
+                            </div>
+                            <button type="submit" class="btn btn-info">Save</button>
+                            <a href="/lms/change-password" class="btn btn-outline-secondary ms-2">Change password</a>
+                        </form>
+                        <p class="text-muted small mt-3 mb-0">Other details (name, designation, team, reporting lead) are maintained by HR.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4" id="balanceSection">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">My Leave Balance (<span id="balanceYear"></span>)</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead class="table-dark">
+                            <tr><th>Leave Type</th><th>Total</th><th>Used</th><th>Remaining</th></tr>
+                        </thead>
+                        <tbody id="myBalances"><tr><td colspan="4" class="text-center">Loading...</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" id="historySection">
+            <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">My Leave History</h5>
+                <a href="/lms/leave-requests" class="btn btn-light btn-sm">Apply for leave</a>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead class="table-dark">
+                            <tr><th>Leave Type</th><th>From</th><th>To</th><th>Days</th><th>Reason</th><th>Status</th><th>Approvals</th></tr>
+                        </thead>
+                        <tbody id="myHistory"><tr><td colspan="7" class="text-center">Loading...</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+    <th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+    <script th:src="@{/js/profile.js}"></script>
+</body>
+</html>

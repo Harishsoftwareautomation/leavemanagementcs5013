@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="en">
+<head>
+    <th:block th:replace="~{fragments/layout :: head}"></th:block>
+    <title>Leave Management System - Home</title>
+</head>
+<body>
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+    <!-- Main Content -->
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="jumbotron bg-light p-5 rounded">
+                    <h1 class="display-4">Welcome to Leave Management System</h1>
+                    <p class="lead">Manage your leave requests and track leave balance efficiently</p>
+                    <hr class="my-4">
+                    <p>This is a comprehensive leave management system that helps you manage employee leaves, approvals, and balance tracking.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <div class="row mt-5">
+            <div class="col-md-3 mb-4" sec:authorize="hasRole('HR_ADMIN')">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">👥 Employee Management</h5>
+                        <p class="card-text">Add, view, and manage employee information</p>
+                        <a href="/lms/employees" class="btn btn-primary">Go to Employees</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">📋 Leave Requests</h5>
+                        <p class="card-text">Submit and manage leave requests</p>
+                        <a href="/lms/leave-requests" class="btn btn-primary">Go to Leave Requests</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">📊 Leave Balance</h5>
+                        <p class="card-text">Check and manage leave balance</p>
+                        <a href="/lms/leave-balance" class="btn btn-primary">Go to Leave Balance</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4" sec:authorize="hasAnyRole('HR_ADMIN', 'TEAM_LEAD')">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">📈 Dashboard</h5>
+                        <p class="card-text" sec:authorize="hasRole('HR_ADMIN')">Balances, negative balances and pending approvals</p>
+                        <p class="card-text" sec:authorize="hasRole('TEAM_LEAD')">Your team's balances and pending requests</p>
+                        <a href="/lms/dashboard" class="btn btn-primary">Go to Dashboard</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- API Documentation -->
+        <div class="row mt-5 mb-5">
+            <div class="col-md-12">
+                <div class="alert alert-info">
+                    <h4>API Endpoints</h4>
+                    <p>Access the REST API endpoints for integration:</p>
+                    <ul>
+                        <li><strong>Employees:</strong> <code>GET /api/employees</code></li>
+                        <li><strong>Leave Requests:</strong> <code>GET /api/leave-requests</code></li>
+                        <li><strong>Leave Balance:</strong> <code>GET /api/leave-balance</code></li>
+                        <li><strong>Leave Types:</strong> <code>GET /api/leave-types</code></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+
+    <th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

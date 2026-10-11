@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <th:block th:replace="~{fragments/layout :: head}"></th:block>
+    <title>Comp-off - Leave Management System</title>
+</head>
+<body>
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+    <div class="container mt-5">
+        <h1>Compensatory Leave (Comp-off)</h1>
+        <hr>
+
+        <div class="row mb-4" id="applySection">
+            <div class="col-md-8 mb-3">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Request Comp-off</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted small">Worked on a weekend or holiday? Request those days back. You get one day of
+                            comp-off per day worked. After your Team Lead and HR approve, the days are added to your
+                            comp-off balance; take them later by applying for <em>Compensatory Leave</em> on the Leave Requests page.</p>
+                        <form id="compOffForm">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="workedFrom" class="form-label">First day worked</label>
+                                    <input type="date" class="form-control" id="workedFrom" data-allow-past required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="workedTo" class="form-label">Last day worked</label>
+                                    <input type="date" class="form-control" id="workedTo" data-allow-past required>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="compOffReason" class="form-label">Work done</label>
+                                <textarea class="form-control" id="compOffReason" rows="2" required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-success">Submit Request</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card text-center">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">My Comp-off Balance</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="display-4 mb-0" id="myCompOffBalance">-</p>
+                        <p class="text-muted">day(s) available, no expiry</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0">Comp-off Requests</h5>
+            </div>
+            <div class="card-body">
+                <ul class="nav nav-tabs mb-3" id="viewTabs">
+                    <li class="nav-item" id="tab-mine"><a class="nav-link" href="#" onclick="showView('mine'); return false;">My Requests</a></li>
+                    <li class="nav-item" id="tab-team" hidden><a class="nav-link" href="#" onclick="showView('team'); return false;">Team Approvals <span class="badge bg-warning text-dark" id="count-team"></span></a></li>
+                    <li class="nav-item" id="tab-hr" hidden><a class="nav-link" href="#" onclick="showView('hr'); return false;">HR Approvals <span class="badge bg-info text-dark" id="count-hr"></span></a></li>
+                    <li class="nav-item" id="tab-all"><a class="nav-link" href="#" onclick="showView('all'); return false;">All</a></li>
+                </ul>
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover align-middle">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>Employee</th>
+                                <th>Days worked</th>
+                                <th>Days</th>
+                                <th>Work done</th>
+                                <th>Requested</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="compOffList">
+                            <tr><td colspan="8" class="text-center">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+    <th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+    <script th:src="@{/js/comp-off.js}"></script>
+</body>
+</html>
